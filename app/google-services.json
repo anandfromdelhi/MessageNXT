@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "364487372500",
+    "project_id": "messagenxt",
+    "storage_bucket": "messagenxt.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364487372500:android:6a7d4ce1f1eeecba69d541",
+        "android_client_info": {
+          "package_name": "com.example.messagenxt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "364487372500-173scndv3qldnipmq52t0u3hehiq2nh2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.messagenxt",
+            "certificate_hash": "aa24eeb549ebd418544442a6504c8a2b5bee3df5"
+          }
+        },
+        {
+          "client_id": "364487372500-77gaeso9k6v7jsu5tif1lr6k3pek43m6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIVgP_bxDKi_6SUjDzNbNnhz9DJZsnNdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "364487372500-77gaeso9k6v7jsu5tif1lr6k3pek43m6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
