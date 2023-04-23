@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import com.example.messagenxt.Navigation.NavScreens
 import com.example.messagenxt.data.UserData
 import com.example.messagenxt.utils.composables.MessageFloatButton
 import com.example.messagenxt.utils.composables.MessageNxtTopBar
@@ -13,10 +14,10 @@ import com.example.messagenxt.utils.composables.MessagePreviewBox
 @Composable
 fun WelcomeScreen(
     userData: UserData?,
-    onSignOut:()-> Unit,
+    onSignOut: () -> Unit,
     navController: NavController
 ) {
-    val messageList:List<Messages> = listOf(
+    val messageList: List<Messages> = listOf(
         Messages("Johny", "1:00", "Hi how are you"),
         Messages("Johny", "1:00", "Hi how are you"),
         Messages("Johny", "1:00", "Hi how are you"),
@@ -24,14 +25,26 @@ fun WelcomeScreen(
         Messages("Johny", "1:00", "Hi how are you"),
         Messages("Johny", "1:00", "Hi how are you"),
         Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you kehfkdshlfkdshaflhlfdkhfadlkshflkashdlkhfdlkshfdslkhflkdsahflkjh"),
+        Messages(
+            "Johny",
+            "1:00",
+            "Hi how are you kehfkdshlfkdshaflhlfdkhfadlkshflkashdlkhfdlkshfdslkhflkdsahflkjh"
+        ),
         Messages("Johny", "1:00", "Hi how are you"),
         Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are alkflsdhdlkfashflkdshflakhflkgsflkgflksdglkagflkadsglkfsglfdksagdlsfkglkyou"),
+        Messages(
+            "Johny",
+            "1:00",
+            "Hi how are alkflsdhdlkfashflkdshflakhflkgsflkgflksdglkagflkadsglkfsglfdksagdlsfkglkyou"
+        ),
         Messages("Johny", "1:00", "Hi how are you"),
         Messages("Johny", "1:00", "Hi how are you"),
         Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi hokhfalfdhslkflkdsgflkdsgfldskgfdlksgfldksgflkgfdlskgdlkfsgdlfskgadlfskgkaldfsw are you"),
+        Messages(
+            "Johny",
+            "1:00",
+            "Hi hokhfalfdhslkflkdsgflkdsgfldskgfdlksgfldksgflkgfdlskgdlkfsgdlfskgadlfskgkaldfsw are you"
+        ),
         Messages("Johny", "1:00", "Hi how are you"),
         Messages("Johny", "1:00", "Hi how are you"),
         Messages("Johny", "1:00", "Hi how are you"),
@@ -43,22 +56,25 @@ fun WelcomeScreen(
         topBar = {
             MessageNxtTopBar(
                 navBackEnabled = false,
-                title = if (userData!=null){
+                title = if (userData != null) {
                     "${userData.userName}"
-                }else{
+                } else {
                     "null"
                 }
             )
 
         },
         floatingActionButton = {
-            MessageFloatButton(text = "new message", navBackEnabled = false, onClick = onSignOut)
+            MessageFloatButton(
+                text = "new message", navBackEnabled = false,
+                onClick = { navController.navigate(NavScreens.ConversationScreen.route) }
+            )
         }
     ) { paddingValues ->
         paddingValues
 
         LazyColumn {
-            items(messageList){it ->
+            items(messageList) { it ->
                 MessagePreviewBox(message = it)
             }
 

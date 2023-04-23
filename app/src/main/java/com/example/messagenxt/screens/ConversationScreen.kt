@@ -1,5 +1,6 @@
 package com.example.messagenxt.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,15 +12,29 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.messagenxt.data.Chat
+import com.example.messagenxt.screens.viewModels.CRUDViewModel
 import com.example.messagenxt.utils.composables.MessageNxtTopBar
 
 @Composable
 fun ConversationScreen(
-    conversation: List<Messages>
+    conversation: List<Messages>,
+    crudViewModel: CRUDViewModel = CRUDViewModel()
 ) {
-    var userMessage by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    var messages: List<Chat> by remember { mutableStateOf(emptyList()) }
+
+    var message by remember { mutableStateOf("") }
+    var to by remember {
+        mutableStateOf("anand")
+    }
+    var from by remember {
+        mutableStateOf("elon")
+    }
+
     Scaffold(
         topBar = { MessageNxtTopBar(navBackEnabled = true, title = "Conversation") }
     ) { paddingValues ->
@@ -87,7 +102,7 @@ fun ConversationScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     OutlinedTextField(
-                        value = userMessage, onValueChange = { userMessage = it },
+                        value = message, onValueChange = { message = it },
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier.weight(1f),
                         maxLines = 5,
@@ -96,7 +111,15 @@ fun ConversationScreen(
                             focusedBorderColor = MaterialTheme.colors.secondary
                         )
                     )
-                    Icon(imageVector = Icons.Default.Send, contentDescription = null, modifier = Modifier.padding(10.dp))
+                    Icon(
+                        imageVector = Icons.Default.Send,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .clickable {
+                                crudViewModel.saveData(chat = Chat(from, to, message),context)
+                            }
+                    )
                 }
 
             }

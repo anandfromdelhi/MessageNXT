@@ -11,6 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.messagenxt.auth.GoogleAuthUiClient
+import com.example.messagenxt.screens.ConversationScreen
+import com.example.messagenxt.screens.Messages
 import com.example.messagenxt.screens.SignInScreen
 import com.example.messagenxt.screens.WelcomeScreen
 import com.example.messagenxt.screens.viewModels.SignInViewModel
@@ -21,6 +23,41 @@ import kotlinx.coroutines.launch
 fun Navigation(googleAuthUiClient: GoogleAuthUiClient, applicationContext: Context) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
+
+    val messageList: List<Messages> = listOf(
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages(
+            "Baba",
+            "1:00",
+            "Hi how are you kehfkdshlfkdshaflhlfdkhfadlkshflkashdlkhfdlkshfdslkhflkdsahflkjh"
+        ),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages(
+            "Johny",
+            "1:00",
+            "Hi how are alkflsdhdlkfashflkdshflakhflkgsflkgflksdglkagflkadsglkfsglfdksagdlsfkglkyou"
+        ),
+        Messages("Baba", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Baba", "1:00", "Hi how are you"),
+        Messages(
+            "Johny",
+            "1:00",
+            "Hi hokhfalfdhslkflkdsgflkdsgfldskgfdlksgfldksgflkgfdlskgdlkfsgdlfskgadlfskgkaldfsw are you"
+        ),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Baba", "1:00", "Hi how are you"),
+        Messages("Baba", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you"),
+        Messages("Johny", "1:00", "Hi how are you")
+    )
 
     NavHost(navController = navController, startDestination = NavScreens.SignInScreen.route) {
 
@@ -87,6 +124,9 @@ fun Navigation(googleAuthUiClient: GoogleAuthUiClient, applicationContext: Conte
                 },
                 navController = navController
             )
+        }
+        composable(route = NavScreens.ConversationScreen.route){
+            ConversationScreen(conversation = messageList)
         }
 
     }
