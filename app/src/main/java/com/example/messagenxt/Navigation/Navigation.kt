@@ -126,7 +126,7 @@ fun Navigation(googleAuthUiClient: GoogleAuthUiClient, applicationContext: Conte
             )
         }
         composable(route = NavScreens.ConversationScreen.route){
-            ConversationScreen(conversation = messageList)
+            ConversationScreen(userData = googleAuthUiClient.getSignedInUser())
         }
 
     }

@@ -1,5 +1,7 @@
 package com.example.messagenxt.screens
 
+
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,24 +18,76 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messagenxt.data.Chat
+import com.example.messagenxt.data.UserData
 import com.example.messagenxt.screens.viewModels.CRUDViewModel
+import com.example.messagenxt.utils.alert
 import com.example.messagenxt.utils.composables.MessageNxtTopBar
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 @Composable
 fun ConversationScreen(
-    conversation: List<Messages>,
-    crudViewModel: CRUDViewModel = CRUDViewModel()
+    crudViewModel: CRUDViewModel = CRUDViewModel(),
+    userData: UserData?
 ) {
     val context = LocalContext.current
-    var messages: List<Chat> by remember { mutableStateOf(emptyList()) }
+    var messages: List<Chat?> by remember { mutableStateOf(emptyList()) }
+    val scope = rememberCoroutineScope()
 
     var message by remember { mutableStateOf("") }
     var to by remember {
         mutableStateOf("anand")
     }
     var from by remember {
-        mutableStateOf("elon")
+        mutableStateOf(userData?.userName ?: "elon")
     }
+
+    val db = Firebase.firestore
+    val query = db.collection("Anand Kumar Mehta-anand")
+    var data:List<Chat?> by remember { mutableStateOf(emptyList()) }
+
+    // access firestore at the time of app start to retrieve all the messages
+    LaunchedEffect(key1 = true) {
+        scope.launch {
+            try {
+                crudViewModel.retreiveData(
+                    context = context,
+                    from = "Anand Kumar Mehta",
+                    to = "anand",
+                ){list ->
+                    messages = list
+
+                }
+            } catch (e: Exception) {
+                alert(e.message ?: "error", context)
+            }
+        }
+    }
+
+    //access firestore messages every time there is a change in data
+    DisposableEffect(Unit) {
+        val registration = query.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("TAG", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && !snapshot.isEmpty) {
+                messages = snapshot.documents.map { it.toObject(Chat::class.java) }
+
+            } else {
+                messages = emptyList()
+            }
+        }
+
+        onDispose {
+            registration.remove()
+        }
+    }
+
+
+
 
     Scaffold(
         topBar = { MessageNxtTopBar(navBackEnabled = true, title = "Conversation") }
@@ -42,10 +96,10 @@ fun ConversationScreen(
 
         Column() {
             LazyColumn(modifier = Modifier.weight(1f)) {
-                items(conversation) { message ->
+                items(messages) { message ->
                     Box(
                         modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = if (message.from == "Baba") {
+                        contentAlignment = if (message?.from == "Baba") {
                             Alignment.CenterEnd
                         } else {
                             Alignment.CenterStart
@@ -69,17 +123,21 @@ fun ConversationScreen(
                                     bottom = 10.dp,
                                 )
                             ) {
-                                Text(
-                                    text = message.text,
-                                    style = MaterialTheme.typography.body1
-                                )
+                                if (message != null) {
+                                    Text(
+                                        text = message.message,
+                                        style = MaterialTheme.typography.body1
+                                    )
+                                }
                                 Spacer(modifier = Modifier.height(5.dp))
 
-                                Text(
-                                    text = message.time,
-                                    style = MaterialTheme.typography.caption,
-                                    fontSize = 10.sp
-                                )
+                                if (message != null) {
+                                    Text(
+                                        text = message.time,
+                                        style = MaterialTheme.typography.caption,
+                                        fontSize = 10.sp
+                                    )
+                                }
 
 
                             }
@@ -117,7 +175,8 @@ fun ConversationScreen(
                         modifier = Modifier
                             .padding(10.dp)
                             .clickable {
-                                crudViewModel.saveData(chat = Chat(from, to, message),context)
+                                crudViewModel.saveData(chat = Chat(from, to, message), context)
+                                message = ""
                             }
                     )
                 }
