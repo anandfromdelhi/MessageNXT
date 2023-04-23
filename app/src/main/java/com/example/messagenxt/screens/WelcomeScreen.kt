@@ -4,12 +4,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
+import com.example.messagenxt.data.UserData
 import com.example.messagenxt.utils.composables.MessageFloatButton
 import com.example.messagenxt.utils.composables.MessageNxtTopBar
 import com.example.messagenxt.utils.composables.MessagePreviewBox
 
 @Composable
 fun WelcomeScreen(
+    userData: UserData?,
+    onSignOut:()-> Unit,
+    navController: NavController
 ) {
     val messageList:List<Messages> = listOf(
         Messages("Johny", "1:00", "Hi how are you"),
@@ -36,10 +41,18 @@ fun WelcomeScreen(
 
     Scaffold(
         topBar = {
-            MessageNxtTopBar(navBackEnabled = false, title = "MessageNXT")
+            MessageNxtTopBar(
+                navBackEnabled = false,
+                title = if (userData!=null){
+                    "${userData.userName}"
+                }else{
+                    "null"
+                }
+            )
+
         },
         floatingActionButton = {
-            MessageFloatButton(text = "new message", navBackEnabled = false)
+            MessageFloatButton(text = "new message", navBackEnabled = false, onClick = onSignOut)
         }
     ) { paddingValues ->
         paddingValues

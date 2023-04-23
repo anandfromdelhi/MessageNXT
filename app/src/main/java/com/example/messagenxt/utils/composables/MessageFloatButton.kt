@@ -14,8 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun MessageFloatButton(text:String,navBackEnabled:Boolean){
-    FloatingActionButton(onClick = { /*TODO*/ }, modifier = Modifier.width(170.dp)) {
+fun MessageFloatButton(text:String,navBackEnabled:Boolean,onClick:()-> Unit = {}){
+    FloatingActionButton(onClick = onClick, modifier = Modifier.width(170.dp)) {
         Row() {
             if (!navBackEnabled){ Text(text = text) }
             Spacer(modifier = Modifier.width(10.dp))

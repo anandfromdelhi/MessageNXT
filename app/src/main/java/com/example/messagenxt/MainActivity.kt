@@ -7,35 +7,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
-import com.example.messagenxt.screens.ConversationScreen
-import com.example.messagenxt.screens.Messages
-import com.example.messagenxt.screens.WelcomeScreen
+import com.example.messagenxt.Navigation.Navigation
+import com.example.messagenxt.auth.GoogleAuthUiClient
 import com.example.messagenxt.ui.theme.MessageNXTTheme
+import com.google.android.gms.auth.api.identity.Identity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val messageList:List<Messages> = listOf(
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Baba", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you kehfkdshlfkdshaflhlfdkhfadlkshflkashdlkhfdlkshfdslkhflkdsahflkjh"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Baba", "1:00", "Hi how are alkflsdhdlkfashflkdshflakhflkgsflkgflksdglkagflkadsglkfsglfdksagdlsfkglkyou"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Baba", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi hokhfalfdhslkflkdsgflkdsgfldskgfdlksgfldksgflkgfdlskgdlkfsgdlfskgadlfskgkaldfsw are you"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Baba", "1:00", "Hi how are you"),
-        Messages("Baba", "1:00", "Hi how are you"),
-        Messages("Johny", "1:00", "Hi how are you"),
-        Messages("Baba", "1:00", "Hi how are you")
-    )
+    private val googleAuthUiClient by lazy {
+        GoogleAuthUiClient(
+            context = applicationContext,
+            oneTapClient = Identity.getSignInClient(applicationContext)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -44,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    ConversationScreen(conversation = messageList)
+                    Navigation(googleAuthUiClient = googleAuthUiClient,applicationContext = applicationContext)
                 }
             }
         }
