@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -46,6 +47,7 @@ fun ConversationScreen(
     val db = Firebase.firestore
     val query = db.collection("Anand Kumar Mehta-anand")
     var data:List<Chat?> by remember { mutableStateOf(emptyList()) }
+    val scrollState = rememberLazyListState()
 
     // access firestore at the time of app start to retrieve all the messages
     LaunchedEffect(key1 = true) {
@@ -62,6 +64,8 @@ fun ConversationScreen(
             } catch (e: Exception) {
                 alert(e.message ?: "error", context)
             }
+            //scrolls to bottom when app launched
+            scrollState.animateScrollToItem(messages.size - 1)
         }
     }
 
@@ -177,6 +181,9 @@ fun ConversationScreen(
                             .clickable {
                                 crudViewModel.saveData(chat = Chat(from, to, message), context)
                                 message = ""
+
+                                //scrolls to bottom
+                                scope.launch { scrollState.animateScrollToItem(messages.size - 1) }
                             }
                     )
                 }
