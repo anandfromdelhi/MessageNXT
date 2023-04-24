@@ -1,5 +1,6 @@
 package com.example.messagenxt.utils.composables
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -18,7 +19,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MessageNxtTopBar(
     navBackEnabled:Boolean,
-    title:String
+    title:String,
+    onSettingClick:()-> Unit = {}
 ){
     TopAppBar(
         modifier = Modifier
@@ -33,7 +35,7 @@ fun MessageNxtTopBar(
         Text(text = title, Modifier.weight(1f), textAlign = TextAlign.Center)
         Icon(
             imageVector = Icons.Default.Settings,
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier.padding(10.dp).clickable { onSettingClick.invoke() },
             contentDescription = null
         )
 

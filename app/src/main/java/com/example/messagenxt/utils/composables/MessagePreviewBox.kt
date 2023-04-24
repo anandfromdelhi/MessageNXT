@@ -9,12 +9,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.messagenxt.screens.Messages
 
 @Composable
-fun MessagePreviewBox(message: Messages) {
-    Card(shape = RoundedCornerShape(20.dp), elevation = 10.dp, modifier = Modifier.padding(top = 10.dp, start = 10.dp, end = 10.dp)) {
-        Column(modifier = Modifier.padding(start = 20.dp,end = 20.dp, top = 10.dp, bottom = 10.dp)) {
+fun MessagePreviewBox(message: com.example.messagenxt.data.Messages) {
+
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        elevation = 10.dp,
+        modifier = Modifier.padding(top = 10.dp, start = 10.dp, end = 10.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                start = 20.dp,
+                end = 20.dp,
+                top = 10.dp,
+                bottom = 10.dp
+            )
+        ) {
             Row() {
                 Text(text = message.from, style = MaterialTheme.typography.subtitle1)
                 Spacer(modifier = Modifier.weight(1f))
