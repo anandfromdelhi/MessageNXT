@@ -46,7 +46,7 @@ fun ConversationScreen(
 
     val db = Firebase.firestore
     val query = db.collection("Anand Kumar Mehta-anand")
-    var data:List<Chat?> by remember { mutableStateOf(emptyList()) }
+//    var data: List<Chat?> by remember { mutableStateOf(emptyList()) }
     val scrollState = rememberLazyListState()
 
     // access firestore at the time of app start to retrieve all the messages
@@ -57,15 +57,15 @@ fun ConversationScreen(
                     context = context,
                     from = "Anand Kumar Mehta",
                     to = "anand",
-                ){list ->
+                ) { list ->
                     messages = list
-
+                    Log.d("size", "ConversationScreen: ${messages.size}")
+                    scope.launch {  scrollState.animateScrollToItem(messages.size - 1) }
                 }
             } catch (e: Exception) {
                 alert(e.message ?: "error", context)
             }
-            //scrolls to bottom when app launched
-            scrollState.animateScrollToItem(messages.size - 1)
+
         }
     }
 
@@ -99,7 +99,10 @@ fun ConversationScreen(
         paddingValues
 
         Column() {
-            LazyColumn(modifier = Modifier.weight(1f)) {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                state = scrollState
+            ) {
                 items(messages) { message ->
                     Box(
                         modifier = Modifier.fillMaxWidth(),
@@ -183,7 +186,7 @@ fun ConversationScreen(
                                 message = ""
 
                                 //scrolls to bottom
-                                scope.launch { scrollState.animateScrollToItem(messages.size - 1) }
+                                scope.launch { scrollState.animateScrollToItem(messages.size -1 ) }
                             }
                     )
                 }
