@@ -66,20 +66,22 @@ fun WelcomeScreen(
 
         LazyColumn {
             items(userList) { userItem ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .height(100.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    elevation = 5.dp
-                ) {
-                    Column(modifier = Modifier
-                        .fillMaxSize()
-                        .padding(20.dp)
-                        .clickable {
-                            navController.navigate(NavScreens.ConversationScreen.route)
-                        }) {
+                if (userItem?.userName != user?.displayName){
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            .height(100.dp)
+                            .clickable {
+                                       navController.navigate(NavScreens.ConversationScreen.route)
+                            },
+                        shape = RoundedCornerShape(10.dp),
+                        elevation = 5.dp
+                    ) {
+                        Column(modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp)
+                        ) {
 
                             userItem?.userName?.let {
                                 Text(
@@ -89,6 +91,7 @@ fun WelcomeScreen(
                             }
                             userItem?.userEmail?.let { Text(text = it) }
 
+                        }
                     }
                 }
             }

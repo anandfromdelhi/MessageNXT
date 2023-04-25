@@ -20,7 +20,7 @@ class CRUDViewModel() : ViewModel() {
     fun createUserInDatabase(
         user:User
     ) = CoroutineScope(Dispatchers.IO).launch {
-        val firestoreRef = Firebase.firestore.collection("users").document(user.userName)
+        val firestoreRef = Firebase.firestore.collection("users").document(user.userEmail)
         try {
             firestoreRef.set(user).addOnSuccessListener {
                 Log.d("USER", "createUserInDatabase: ${user.userName} added in firestore")
