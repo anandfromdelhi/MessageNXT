@@ -2,8 +2,13 @@ package com.example.messagenxt.screens.viewModels
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.messagenxt.data.Chat
+import com.example.messagenxt.data.Messages
 import com.example.messagenxt.data.User
 import com.example.messagenxt.utils.alert
 import com.google.firebase.firestore.DocumentSnapshot
@@ -17,48 +22,75 @@ import kotlinx.coroutines.launch
 
 class CRUDViewModel() : ViewModel() {
 
+    var fromUserEmail by mutableStateOf("")
+    var fromUserName by mutableStateOf("")
+    var toUserEmail by mutableStateOf("")
+
+    fun updateFromUserEmail(text:String){
+        fromUserEmail = text
+    }
+    fun updateFromUserName(text:String){
+        fromUserName = text
+    }
+    fun updateToUserEmail(text:String){
+        toUserEmail = text
+    }
     fun createUserInDatabase(
-        user:User
+        user: User
     ) = CoroutineScope(Dispatchers.IO).launch {
         val firestoreRef = Firebase.firestore.collection("users").document(user.userEmail)
         try {
             firestoreRef.set(user).addOnSuccessListener {
                 Log.d("USER", "createUserInDatabase: ${user.userName} added in firestore")
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             Log.d("USER", "createUserInDatabase: ${e.message}")
         }
 
     }
+
     fun getUsersList(
         context: Context,
-        listOfUsers:(List<User?>)->Unit
+        listOfUsers: (List<User?>) -> Unit
     ) = CoroutineScope(Dispatchers.IO).launch {
         val firestoreRef = Firebase.firestore.collection("users")
         try {
             firestoreRef.get().addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty){
+                if (!querySnapshot.isEmpty) {
                     val users = querySnapshot.documents
                     val usersList = users.map { it.toObject(User::class.java) }
                     listOfUsers(usersList)
-                }else{
+                } else {
 
-                alert("no users found",context)
+                    alert("no users found", context)
                 }
 
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             Log.d("USER", "getUsersList: ${e.message}")
         }
     }
 
+    fun addMessageToDatabase(
+        message: Messages,
+        context: Context
+    ) = CoroutineScope(Dispatchers.IO).launch {
+
+        val firestoreRef = Firebase.firestore.collection(message.from + "/" + message.to).document(message.time)
+
+        try {
+            firestoreRef.set(message)
+                .addOnSuccessListener { alert("message sent to ${message.to}", context) }
+        } catch (e: Exception) {
+            alert(e.message.toString(), context)
+        }
+    }
     fun saveData(
         chat: Chat,
         context: Context
     ) = CoroutineScope(Dispatchers.IO).launch {
-        val firestoreRef =
-            Firebase.firestore.collection("${chat.from}" + "-" + "${chat.to}").document(chat.time)
+        val firestoreRef = Firebase.firestore.collection("${chat.from}" + "-" + "${chat.to}").document(chat.time)
         try {
             firestoreRef.set(chat).addOnSuccessListener {
                 alert("message sent to ${chat.to}", context)
@@ -67,6 +99,30 @@ class CRUDViewModel() : ViewModel() {
             alert(e.message.toString(), context)
         }
     }
+
+    fun readMessagesFromDatabase(
+        message: Messages,
+        context: Context,
+        list: (List<Messages?>) -> Unit
+    ) = CoroutineScope(Dispatchers.IO).launch {
+        val firestoreRef = Firebase.firestore.collection(message.from+"-"+message.to)
+
+        try {
+            firestoreRef.get().addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val message = querySnapshot.documents
+                    val listOfMessages = message.map { it.toObject(Messages::class.java) }
+                    list(listOfMessages)
+                }
+
+            }
+        } catch (e: Exception) {
+            alert("no messages to show", context)
+        }
+
+    }
+
+
 
     fun retreiveData(
         to: String,

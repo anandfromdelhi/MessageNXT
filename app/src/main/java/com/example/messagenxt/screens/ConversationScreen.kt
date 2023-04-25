@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messagenxt.data.Chat
+import com.example.messagenxt.data.Messages
 import com.example.messagenxt.data.UserData
 import com.example.messagenxt.screens.viewModels.CRUDViewModel
 import com.example.messagenxt.utils.alert
@@ -30,37 +31,40 @@ import kotlinx.coroutines.launch
 @Composable
 fun ConversationScreen(
     crudViewModel: CRUDViewModel = CRUDViewModel(),
-    userData: UserData?
+    userData: UserData?,
 ) {
     val context = LocalContext.current
-    var messages: List<Chat?> by remember { mutableStateOf(emptyList()) }
+    var messages: List<Messages?> by remember { mutableStateOf(emptyList()) }
     val scope = rememberCoroutineScope()
 
     var message by remember { mutableStateOf("") }
-    var to by remember {
-        mutableStateOf("anand")
-    }
-    var from by remember {
-        mutableStateOf(userData?.userName ?: "elon")
-    }
+    var to by remember { mutableStateOf("") }
+    var from by remember { mutableStateOf("") }
+    var fromUserName by remember { mutableStateOf("") }
 
     val db = Firebase.firestore
-    val query = db.collection("Anand Kumar Mehta-anand")
-//    var data: List<Chat?> by remember { mutableStateOf(emptyList()) }
+    val query = db.collection("$from-$to")
     val scrollState = rememberLazyListState()
 
     // access firestore at the time of app start to retrieve all the messages
     LaunchedEffect(key1 = true) {
         scope.launch {
             try {
-                crudViewModel.retreiveData(
-                    context = context,
-                    from = "Anand Kumar Mehta",
-                    to = "anand",
+                to = crudViewModel.toUserEmail
+                from = crudViewModel.fromUserEmail
+                fromUserName = crudViewModel.fromUserName
+
+                crudViewModel.readMessagesFromDatabase(
+                    Messages(from = from, to = to)
+                    ,
+                    context = context
                 ) { list ->
                     messages = list
-                    Log.d("size", "ConversationScreen: ${messages.size}")
-                    scope.launch {  scrollState.animateScrollToItem(messages.size - 1) }
+                    scope.launch {
+                        if (messages.isNotEmpty()) {
+                            scrollState.animateScrollToItem(messages.size - 1)
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 alert(e.message ?: "error", context)
@@ -78,7 +82,7 @@ fun ConversationScreen(
             }
 
             if (snapshot != null && !snapshot.isEmpty) {
-                messages = snapshot.documents.map { it.toObject(Chat::class.java) }
+                messages = snapshot.documents.map { it.toObject(Messages::class.java) }
 
             } else {
                 messages = emptyList()
@@ -94,7 +98,7 @@ fun ConversationScreen(
 
 
     Scaffold(
-        topBar = { MessageNxtTopBar(navBackEnabled = true, title = "Conversation") }
+        topBar = { MessageNxtTopBar(navBackEnabled = true, title = fromUserName) }
     ) { paddingValues ->
         paddingValues
 
@@ -106,7 +110,7 @@ fun ConversationScreen(
                 items(messages) { message ->
                     Box(
                         modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = if (message?.from == "Baba") {
+                        contentAlignment = if (message?.from == from) {
                             Alignment.CenterEnd
                         } else {
                             Alignment.CenterStart
@@ -132,7 +136,7 @@ fun ConversationScreen(
                             ) {
                                 if (message != null) {
                                     Text(
-                                        text = message.message,
+                                        text = message.text,
                                         style = MaterialTheme.typography.body1
                                     )
                                 }
@@ -182,11 +186,32 @@ fun ConversationScreen(
                         modifier = Modifier
                             .padding(10.dp)
                             .clickable {
-                                crudViewModel.saveData(chat = Chat(from, to, message), context)
-                                message = ""
 
-                                //scrolls to bottom
-                                scope.launch { scrollState.animateScrollToItem(messages.size -1 ) }
+
+                                scope.launch {
+                                    crudViewModel.addMessageToDatabase(
+                                        message = Messages(
+                                            from = to,
+                                            to = from,
+                                            text = message,
+                                        ),
+                                        context
+                                    )
+                                    crudViewModel.addMessageToDatabase(
+                                        message = Messages(
+                                            from = from,
+                                            to = to,
+                                            text = message,
+                                        ),
+                                        context
+                                    )
+                                    message = ""
+
+                                    //scrolls to bottom
+                                    if (messages.isNotEmpty()) {
+                                        scrollState.animateScrollToItem(messages.size - 1)
+                                    }
+                                }
                             }
                     )
                 }

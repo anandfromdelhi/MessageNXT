@@ -73,7 +73,12 @@ fun WelcomeScreen(
                             .padding(10.dp)
                             .height(100.dp)
                             .clickable {
-                                       navController.navigate(NavScreens.ConversationScreen.route)
+                                scope.launch{
+                                    crudViewModel.updateToUserEmail(user?.displayName.toString())
+                                    crudViewModel.updateFromUserEmail(userItem?.userEmail.toString())
+                                    crudViewModel.updateFromUserName(userItem?.userName.toString())
+                                    navController.navigate(NavScreens.ConversationScreen.route)
+                                }
                             },
                         shape = RoundedCornerShape(10.dp),
                         elevation = 5.dp
