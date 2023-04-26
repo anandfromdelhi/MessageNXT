@@ -11,10 +11,7 @@ import com.example.messagenxt.data.Chat
 import com.example.messagenxt.data.Messages
 import com.example.messagenxt.data.User
 import com.example.messagenxt.utils.alert
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,7 +74,7 @@ class CRUDViewModel() : ViewModel() {
         context: Context
     ) = CoroutineScope(Dispatchers.IO).launch {
 
-        val firestoreRef = Firebase.firestore.collection(message.from + "/" + message.to).document(message.time)
+        val firestoreRef = Firebase.firestore.collection(message.from + "-" + message.to).document(message.time)
 
         try {
             firestoreRef.set(message)
@@ -101,11 +98,12 @@ class CRUDViewModel() : ViewModel() {
     }
 
     fun readMessagesFromDatabase(
-        message: Messages,
+        to:String,
+        from:String,
         context: Context,
         list: (List<Messages?>) -> Unit
     ) = CoroutineScope(Dispatchers.IO).launch {
-        val firestoreRef = Firebase.firestore.collection(message.from+"-"+message.to)
+        val firestoreRef = Firebase.firestore.collection("$from-$to")
 
         try {
             firestoreRef.get().addOnSuccessListener { querySnapshot ->

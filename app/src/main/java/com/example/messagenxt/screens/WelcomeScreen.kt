@@ -73,11 +73,10 @@ fun WelcomeScreen(
                             .padding(10.dp)
                             .height(100.dp)
                             .clickable {
-                                scope.launch{
-                                    crudViewModel.updateToUserEmail(user?.displayName.toString())
-                                    crudViewModel.updateFromUserEmail(userItem?.userEmail.toString())
-                                    crudViewModel.updateFromUserName(userItem?.userName.toString())
-                                    navController.navigate(NavScreens.ConversationScreen.route)
+                                scope.launch {
+                                    navController.navigate(
+                                        NavScreens.ConversationScreen.route+"/${userItem?.userEmail}"+"/${userItem?.userName}"
+                                    )
                                 }
                             },
                         shape = RoundedCornerShape(10.dp),

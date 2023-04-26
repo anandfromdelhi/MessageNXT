@@ -32,6 +32,8 @@ import kotlinx.coroutines.launch
 fun ConversationScreen(
     crudViewModel: CRUDViewModel = CRUDViewModel(),
     userData: UserData?,
+    fromUserEmail:String,
+    fromUserName:String
 ) {
     val context = LocalContext.current
     var messages: List<Messages?> by remember { mutableStateOf(emptyList()) }
@@ -55,8 +57,8 @@ fun ConversationScreen(
                 fromUserName = crudViewModel.fromUserName
 
                 crudViewModel.readMessagesFromDatabase(
-                    Messages(from = from, to = to)
-                    ,
+                    from = from,
+                    to = to ,
                     context = context
                 ) { list ->
                     messages = list
@@ -189,22 +191,8 @@ fun ConversationScreen(
 
 
                                 scope.launch {
-                                    crudViewModel.addMessageToDatabase(
-                                        message = Messages(
-                                            from = to,
-                                            to = from,
-                                            text = message,
-                                        ),
-                                        context
-                                    )
-                                    crudViewModel.addMessageToDatabase(
-                                        message = Messages(
-                                            from = from,
-                                            to = to,
-                                            text = message,
-                                        ),
-                                        context
-                                    )
+                                    crudViewModel.saveData(chat = Chat(from = from, to = to),context)
+
                                     message = ""
 
                                     //scrolls to bottom

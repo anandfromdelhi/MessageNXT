@@ -7,9 +7,11 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.messagenxt.auth.GoogleAuthUiClient
 import com.example.messagenxt.screens.ConversationScreen
 import com.example.messagenxt.screens.SignInScreen
@@ -55,8 +57,8 @@ fun Navigation(googleAuthUiClient: GoogleAuthUiClient, applicationContext: Conte
             LaunchedEffect(key1 = state.isSignInSuccessful) {
                 if (state.isSignInSuccessful) {
                     alert(message = "Signed in successfully", context = applicationContext)
-                navController.navigate(NavScreens.WelcomeScreen.route)
-                viewModel.resetState()
+                    navController.navigate(NavScreens.WelcomeScreen.route)
+                    viewModel.resetState()
                 }
             }
 
@@ -90,8 +92,21 @@ fun Navigation(googleAuthUiClient: GoogleAuthUiClient, applicationContext: Conte
                 navController = navController
             )
         }
-        composable(route = NavScreens.ConversationScreen.route){
-            ConversationScreen(userData = googleAuthUiClient.getSignedInUser())
+
+        val routeToConversationScreen = NavScreens.ConversationScreen.route
+        composable(route = "$routeToConversationScreen/{userEmail}/{userName}",
+            arguments = listOf(
+                navArgument(name = "userEmail") { type = NavType.StringType },
+                navArgument(name = "userName") { type = NavType.StringType }
+            )
+        ) { navBack ->
+            val userEmail = navBack.arguments?.getString("userEmail")
+            val userName = navBack.arguments?.getString("userName")
+            ConversationScreen(
+                userData = googleAuthUiClient.getSignedInUser(),
+                fromUserEmail = userEmail.toString(),
+                fromUserName = userName.toString()
+            )
         }
 
     }
