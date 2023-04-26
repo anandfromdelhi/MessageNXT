@@ -20,7 +20,8 @@ import androidx.compose.ui.unit.dp
 fun MessageNxtTopBar(
     navBackEnabled:Boolean,
     title:String,
-    onSettingClick:()-> Unit = {}
+    onSettingClick:()-> Unit = {},
+    onBackClick:()-> Unit = {}
 ){
     TopAppBar(
         modifier = Modifier
@@ -30,7 +31,7 @@ fun MessageNxtTopBar(
         Icon(
             imageVector = if (!navBackEnabled){ Icons.Default.Menu }else{Icons.Default.ArrowBack},
             contentDescription = null,
-            modifier = Modifier.padding(10.dp)
+            modifier = Modifier.padding(10.dp).clickable { onBackClick.invoke()}
         )
         Text(text = title, Modifier.weight(1f), textAlign = TextAlign.Center)
         Icon(

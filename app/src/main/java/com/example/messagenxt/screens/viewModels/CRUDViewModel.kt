@@ -57,10 +57,9 @@ class CRUDViewModel() : ViewModel() {
     }
 
     fun addMessageToDatabase(
-        message: Messages,
-        context: Context
+        message: Messages
     ) = CoroutineScope(Dispatchers.IO).launch {
-        val firestoreRef = Firebase.firestore.collection(message.from).document(message.time)
+        val firestoreRef = Firebase.firestore.collection(message.from+"-"+message.to).document(message.time)
 
         try {
             firestoreRef.set(message)
@@ -71,10 +70,9 @@ class CRUDViewModel() : ViewModel() {
     }
 
     fun addMessageToDatabase2(
-        message: Messages,
-        context: Context
+        message: Messages
     ) = CoroutineScope(Dispatchers.IO).launch {
-        val firestoreRef = Firebase.firestore.collection(message.to).document(message.time)
+        val firestoreRef = Firebase.firestore.collection(message.to+"-"+message.from).document(message.time)
 
         try {
             firestoreRef.set(message)
@@ -84,26 +82,13 @@ class CRUDViewModel() : ViewModel() {
         }
     }
 
-    fun saveData(
-        chat: Chat,
-        context: Context
-    ) = CoroutineScope(Dispatchers.IO).launch {
-        val firestoreRef = Firebase.firestore.collection("${chat.from}" + "-" + "${chat.to}").document(chat.time)
-        try {
-            firestoreRef.set(chat).addOnSuccessListener {
-                alert("message sent to ${chat.to}", context)
-            }
-        } catch (e: Exception) {
-            alert(e.message.toString(), context)
-        }
-    }
-
     fun readMessagesFromDatabase(
         from:String,
+        to:String,
         context: Context,
         list: (List<Messages?>) -> Unit
     ) = CoroutineScope(Dispatchers.IO).launch {
-        val firestoreRef = Firebase.firestore.collection(from)
+        val firestoreRef = Firebase.firestore.collection("$from-$to")
 
         try {
             firestoreRef.get().addOnSuccessListener { querySnapshot ->
@@ -120,29 +105,6 @@ class CRUDViewModel() : ViewModel() {
 
     }
 
-
-
-    fun retreiveData(
-        to: String,
-        from: String,
-        context: Context,
-        list: (List<Chat?>) -> Unit,
-    ) = CoroutineScope(Dispatchers.IO).launch {
-        val firestoreRef = Firebase.firestore.collection("$from-$to")
-        try {
-            firestoreRef.get().addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val chat = querySnapshot.documents
-                    val listofChats = chat.map { it.toObject(Chat::class.java) }
-                    list(listofChats)
-                } else {
-                    alert("no messages", context)
-                }
-            }
-        } catch (e: Exception) {
-            alert(e.message.toString(), context)
-        }
-    }
 
     fun deleteData(
         context: Context,

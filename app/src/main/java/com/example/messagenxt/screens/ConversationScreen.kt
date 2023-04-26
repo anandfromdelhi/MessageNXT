@@ -20,12 +20,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.messagenxt.data.Chat
 import com.example.messagenxt.data.Messages
 import com.example.messagenxt.data.UserData
 import com.example.messagenxt.screens.viewModels.CRUDViewModel
 import com.example.messagenxt.utils.alert
 import com.example.messagenxt.utils.composables.MessageNxtTopBar
+import com.example.messagenxt.utils.randomBrightColor
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -35,7 +37,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun ConversationScreen(
     crudViewModel: CRUDViewModel = CRUDViewModel(),
-    fromUserName:String
+    fromUserName: String,
+    navController: NavController
 ) {
 
     val context = LocalContext.current
@@ -47,9 +50,8 @@ fun ConversationScreen(
     var message by remember { mutableStateOf("") }
 
 
-
     val db = Firebase.firestore
-    val query = db.collection(fromUserName)
+    val query = db.collection("$fromUserName-$signedInUser")
     val scrollState = rememberLazyListState()
 
     // access firestore at the time of app start to retrieve all the messages
@@ -58,13 +60,14 @@ fun ConversationScreen(
             try {
                 crudViewModel.readMessagesFromDatabase(
                     from = fromUserName,
+                    to = signedInUser.toString(),
                     context = context
                 ) { list ->
                     messages = list
                     scope.launch {
-                        if (messages.isNotEmpty()) {
+
                             scrollState.animateScrollToItem(messages.size - 1)
-                        }
+
                     }
                 }
             } catch (e: Exception) {
@@ -84,6 +87,7 @@ fun ConversationScreen(
 
             if (snapshot != null && !snapshot.isEmpty) {
                 messages = snapshot.documents.map { it.toObject(Messages::class.java) }
+                scope.launch { scrollState.animateScrollToItem(messages.size - 1) }
 
             } else {
                 messages = emptyList()
@@ -96,10 +100,13 @@ fun ConversationScreen(
     }
 
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-
     Scaffold(
-        topBar = { MessageNxtTopBar(navBackEnabled = true, title = fromUserName) }
+        topBar = {
+            MessageNxtTopBar(
+                navBackEnabled = true,
+                title = fromUserName,
+                onBackClick = { navController.popBackStack() })
+        }
     ) { paddingValues ->
         paddingValues
 
@@ -110,56 +117,56 @@ fun ConversationScreen(
             ) {
                 items(messages) { message ->
 
-                    if (message?.to == signedInUser && message?.from == fromUserName) {
-
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = if (message?.from == signedInUser) {
-                                Alignment.CenterEnd
-                            } else {
-                                Alignment.CenterStart
-                            }
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(10.dp),
-                                color = MaterialTheme.colors.onPrimary,
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .widthIn(max = 330.dp),
-                                elevation = 5.dp
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = if (message?.from == signedInUser) {
+                            Alignment.CenterEnd
+                        } else {
+                            Alignment.CenterStart
+                        }
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = randomBrightColor(),
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .widthIn(max = 330.dp),
+                            elevation = 5.dp,
 
                             ) {
 
-                                Column(
-                                    modifier = Modifier.padding(
-                                        start = 20.dp,
-                                        end = 20.dp,
-                                        top = 10.dp,
-                                        bottom = 10.dp,
+                            Column(
+                                modifier = Modifier.padding(
+                                    start = 20.dp,
+                                    end = 20.dp,
+                                    top = 10.dp,
+                                    bottom = 10.dp,
+                                )
+                            ) {
+                                if (message != null) {
+                                    Text(
+                                        text = message.text,
+                                        style = MaterialTheme.typography.body1,
+                                        color = Color.White
                                     )
-                                ) {
-                                    if (message != null) {
-                                        Text(
-                                            text = message.text,
-                                            style = MaterialTheme.typography.body1
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(5.dp))
-
-                                    if (message != null) {
-                                        Text(
-                                            text = message.time,
-                                            style = MaterialTheme.typography.caption,
-                                            fontSize = 10.sp
-                                        )
-                                    }
-
-
                                 }
-                            }
+                                Spacer(modifier = Modifier.height(5.dp))
 
+                                if (message != null) {
+                                    Text(
+                                        text = message.time,
+                                        style = MaterialTheme.typography.caption,
+                                        fontSize = 10.sp,
+                                        color = Color.White
+                                    )
+                                }
+
+
+                            }
                         }
+
                     }
+
                 }
             }
             Card(
@@ -197,24 +204,21 @@ fun ConversationScreen(
                                             from = signedInUser.toString(),
                                             to = fromUserName,
                                             text = message
-                                        ),
-                                        context
+                                        )
                                     )
                                     crudViewModel.addMessageToDatabase2(
                                         message = Messages(
                                             from = signedInUser.toString(),
                                             to = fromUserName,
                                             text = message
-                                        ),
-                                        context
+                                        )
                                     )
                                     message = ""
 
-
                                     //scrolls to bottom
-                                    if (messages.isNotEmpty()) {
-                                        scrollState.animateScrollToItem(messages.size - 1)
-                                    }
+//
+
+
 //                                    keyboardController?.hide()
                                 }
                             }

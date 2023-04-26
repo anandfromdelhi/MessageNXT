@@ -10,9 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.messagenxt.R
@@ -38,7 +41,7 @@ fun SignInScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(modifier = Modifier.weight(8f), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.weight(6f), contentAlignment = Alignment.Center) {
             Image(
                 painter = painterResource(id = R.drawable.chat_logo),
                 contentDescription = "chat logo",
@@ -62,8 +65,12 @@ fun SignInScreen(
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(text = "Sign in with google")
                 }
+
             }
+
         }
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(text = "app developed by An@nD", fontSize = 20.sp, color = Color.LightGray, textAlign = TextAlign.Center)
 
     }
 }

@@ -101,7 +101,8 @@ fun Navigation(googleAuthUiClient: GoogleAuthUiClient, applicationContext: Conte
         ) { navBack ->
             val userName = navBack.arguments?.getString("userName")
             ConversationScreen(
-                fromUserName = userName.toString()
+                fromUserName = userName.toString(),
+                navController = navController
             )
         }
 
