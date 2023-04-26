@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 data class Messages(
     val from:String ="",
     val to:String = "",
-    val time:String = "",
-    val text:String = timeConverter(LocalDateTime.now())
+    val text:String = "",
+    val time:String = timeConverter(LocalDateTime.now())
 )
 

@@ -94,17 +94,13 @@ fun Navigation(googleAuthUiClient: GoogleAuthUiClient, applicationContext: Conte
         }
 
         val routeToConversationScreen = NavScreens.ConversationScreen.route
-        composable(route = "$routeToConversationScreen/{userEmail}/{userName}",
+        composable(route = "$routeToConversationScreen/{userName}",
             arguments = listOf(
-                navArgument(name = "userEmail") { type = NavType.StringType },
                 navArgument(name = "userName") { type = NavType.StringType }
             )
         ) { navBack ->
-            val userEmail = navBack.arguments?.getString("userEmail")
             val userName = navBack.arguments?.getString("userName")
             ConversationScreen(
-                userData = googleAuthUiClient.getSignedInUser(),
-                fromUserEmail = userEmail.toString(),
                 fromUserName = userName.toString()
             )
         }

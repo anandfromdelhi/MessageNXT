@@ -13,9 +13,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messagenxt.data.Chat
@@ -24,41 +26,38 @@ import com.example.messagenxt.data.UserData
 import com.example.messagenxt.screens.viewModels.CRUDViewModel
 import com.example.messagenxt.utils.alert
 import com.example.messagenxt.utils.composables.MessageNxtTopBar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ConversationScreen(
     crudViewModel: CRUDViewModel = CRUDViewModel(),
-    userData: UserData?,
-    fromUserEmail:String,
     fromUserName:String
 ) {
+
     val context = LocalContext.current
     var messages: List<Messages?> by remember { mutableStateOf(emptyList()) }
     val scope = rememberCoroutineScope()
+    val auth = FirebaseAuth.getInstance().currentUser
+    val signedInUser = auth?.displayName
 
     var message by remember { mutableStateOf("") }
-    var to by remember { mutableStateOf("") }
-    var from by remember { mutableStateOf("") }
-    var fromUserName by remember { mutableStateOf("") }
+
+
 
     val db = Firebase.firestore
-    val query = db.collection("$from-$to")
+    val query = db.collection(fromUserName)
     val scrollState = rememberLazyListState()
 
     // access firestore at the time of app start to retrieve all the messages
     LaunchedEffect(key1 = true) {
         scope.launch {
             try {
-                to = crudViewModel.toUserEmail
-                from = crudViewModel.fromUserEmail
-                fromUserName = crudViewModel.fromUserName
-
                 crudViewModel.readMessagesFromDatabase(
-                    from = from,
-                    to = to ,
+                    from = fromUserName,
                     context = context
                 ) { list ->
                     messages = list
@@ -97,7 +96,7 @@ fun ConversationScreen(
     }
 
 
-
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         topBar = { MessageNxtTopBar(navBackEnabled = true, title = fromUserName) }
@@ -110,52 +109,56 @@ fun ConversationScreen(
                 state = scrollState
             ) {
                 items(messages) { message ->
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = if (message?.from == from) {
-                            Alignment.CenterEnd
-                        } else {
-                            Alignment.CenterStart
-                        }
-                    ) {
-                        Surface(
-                            shape = RoundedCornerShape(10.dp),
-                            color = MaterialTheme.colors.onPrimary,
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .widthIn(max = 330.dp),
-                            elevation = 5.dp
 
-                        ) {
+                    if (message?.to == signedInUser && message?.from == fromUserName) {
 
-                            Column(
-                                modifier = Modifier.padding(
-                                    start = 20.dp,
-                                    end = 20.dp,
-                                    top = 10.dp,
-                                    bottom = 10.dp,
-                                )
-                            ) {
-                                if (message != null) {
-                                    Text(
-                                        text = message.text,
-                                        style = MaterialTheme.typography.body1
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(5.dp))
-
-                                if (message != null) {
-                                    Text(
-                                        text = message.time,
-                                        style = MaterialTheme.typography.caption,
-                                        fontSize = 10.sp
-                                    )
-                                }
-
-
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = if (message?.from == signedInUser) {
+                                Alignment.CenterEnd
+                            } else {
+                                Alignment.CenterStart
                             }
-                        }
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colors.onPrimary,
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .widthIn(max = 330.dp),
+                                elevation = 5.dp
 
+                            ) {
+
+                                Column(
+                                    modifier = Modifier.padding(
+                                        start = 20.dp,
+                                        end = 20.dp,
+                                        top = 10.dp,
+                                        bottom = 10.dp,
+                                    )
+                                ) {
+                                    if (message != null) {
+                                        Text(
+                                            text = message.text,
+                                            style = MaterialTheme.typography.body1
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(5.dp))
+
+                                    if (message != null) {
+                                        Text(
+                                            text = message.time,
+                                            style = MaterialTheme.typography.caption,
+                                            fontSize = 10.sp
+                                        )
+                                    }
+
+
+                                }
+                            }
+
+                        }
                     }
                 }
             }
@@ -188,17 +191,31 @@ fun ConversationScreen(
                         modifier = Modifier
                             .padding(10.dp)
                             .clickable {
-
-
                                 scope.launch {
-                                    crudViewModel.saveData(chat = Chat(from = from, to = to),context)
-
+                                    crudViewModel.addMessageToDatabase(
+                                        message = Messages(
+                                            from = signedInUser.toString(),
+                                            to = fromUserName,
+                                            text = message
+                                        ),
+                                        context
+                                    )
+                                    crudViewModel.addMessageToDatabase2(
+                                        message = Messages(
+                                            from = signedInUser.toString(),
+                                            to = fromUserName,
+                                            text = message
+                                        ),
+                                        context
+                                    )
                                     message = ""
+
 
                                     //scrolls to bottom
                                     if (messages.isNotEmpty()) {
                                         scrollState.animateScrollToItem(messages.size - 1)
                                     }
+//                                    keyboardController?.hide()
                                 }
                             }
                     )

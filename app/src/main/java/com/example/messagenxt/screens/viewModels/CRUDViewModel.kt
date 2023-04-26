@@ -19,19 +19,6 @@ import kotlinx.coroutines.launch
 
 class CRUDViewModel() : ViewModel() {
 
-    var fromUserEmail by mutableStateOf("")
-    var fromUserName by mutableStateOf("")
-    var toUserEmail by mutableStateOf("")
-
-    fun updateFromUserEmail(text:String){
-        fromUserEmail = text
-    }
-    fun updateFromUserName(text:String){
-        fromUserName = text
-    }
-    fun updateToUserEmail(text:String){
-        toUserEmail = text
-    }
     fun createUserInDatabase(
         user: User
     ) = CoroutineScope(Dispatchers.IO).launch {
@@ -73,16 +60,30 @@ class CRUDViewModel() : ViewModel() {
         message: Messages,
         context: Context
     ) = CoroutineScope(Dispatchers.IO).launch {
-
-        val firestoreRef = Firebase.firestore.collection(message.from + "-" + message.to).document(message.time)
+        val firestoreRef = Firebase.firestore.collection(message.from).document(message.time)
 
         try {
             firestoreRef.set(message)
-                .addOnSuccessListener { alert("message sent to ${message.to}", context) }
+                .addOnSuccessListener { Log.d("addMessageToDatabase2", "message added to database") }
         } catch (e: Exception) {
-            alert(e.message.toString(), context)
+            Log.d("addMessageToDatabase", "addMessageToDatabase: ${e.message}")
         }
     }
+
+    fun addMessageToDatabase2(
+        message: Messages,
+        context: Context
+    ) = CoroutineScope(Dispatchers.IO).launch {
+        val firestoreRef = Firebase.firestore.collection(message.to).document(message.time)
+
+        try {
+            firestoreRef.set(message)
+                .addOnSuccessListener { Log.d("addMessageToDatabase2", "message added to database") }
+        } catch (e: Exception) {
+            Log.d("addMessageToDatabase2", "addMessageToDatabase: ${e.message}")
+        }
+    }
+
     fun saveData(
         chat: Chat,
         context: Context
@@ -98,12 +99,11 @@ class CRUDViewModel() : ViewModel() {
     }
 
     fun readMessagesFromDatabase(
-        to:String,
         from:String,
         context: Context,
         list: (List<Messages?>) -> Unit
     ) = CoroutineScope(Dispatchers.IO).launch {
-        val firestoreRef = Firebase.firestore.collection("$from-$to")
+        val firestoreRef = Firebase.firestore.collection(from)
 
         try {
             firestoreRef.get().addOnSuccessListener { querySnapshot ->

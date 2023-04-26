@@ -1,5 +1,6 @@
 package com.example.messagenxt.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -66,19 +67,22 @@ fun WelcomeScreen(
 
         LazyColumn {
             items(userList) { userItem ->
-                if (userItem?.userName != user?.displayName){
+                if (userItem?.userEmail != user?.email){
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp)
                             .height(100.dp)
                             .clickable {
-                                scope.launch {
+
                                     navController.navigate(
-                                        NavScreens.ConversationScreen.route+"/${userItem?.userEmail}"+"/${userItem?.userName}"
+                                        NavScreens.ConversationScreen.route + "/${userItem?.userName}"
+
                                     )
+                                    Log.d("username", "WelcomeScreen: ${userItem?.userName}")
+                                    Log.d("username", "WelcomeScreen: test123")
                                 }
-                            },
+                            ,
                         shape = RoundedCornerShape(10.dp),
                         elevation = 5.dp
                     ) {
